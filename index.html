@@ -146,8 +146,8 @@
       <h1>日程調整ページ</h1>
       <p>ご希望の日付と時間を選択し、その後に必要情報をご入力ください。</p>
       <div class="notice">
-        現在は Vercel API へ送信して仮保存確認まで実装済みです。<br>
-        次のステップで、実際に予約を保存できるようにします。
+        現在は Vercel API への送信確認まで実装済みです。<br>
+        次のステップで、実際に予約データを保存できるようにします。
       </div>
     </div>
 
@@ -376,7 +376,7 @@
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-          return showError(result.message || '仮保存に失敗しました。');
+          return showError(result.message || '送信に失敗しました。');
         }
 
         showSuccess(
