@@ -146,7 +146,7 @@
       <h1>日程調整ページ</h1>
       <p>ご希望の日付と時間を選択し、その後に必要情報をご入力ください。</p>
       <div class="notice">
-        現在は入力チェックと確認表示まで実装済みです。<br>
+        現在は Vercel API へ送信して仮保存確認まで実装済みです。<br>
         次のステップで、実際に予約を保存できるようにします。
       </div>
     </div>
@@ -334,38 +334,61 @@
       return document.getElementById(id).value.trim();
     }
 
-    document.getElementById("submitBtn").addEventListener("click", () => {
+    document.getElementById("submitBtn").addEventListener("click", async () => {
       clearMessages();
 
-      const lastName = getValue("lastName");
-      const firstName = getValue("firstName");
-      const email = getValue("email");
-      const phone = getValue("phone");
-      const phoneConfirm = getValue("phoneConfirm");
-      const yearsOfService = getValue("yearsOfService");
-      const retirementDate = getValue("retirementDate");
-      const socialInsurance = getValue("socialInsurance");
-      const employmentInsurance = getValue("employmentInsurance");
+      const payload = {
+        selectedDate,
+        selectedTime,
+        lastName: getValue("lastName"),
+        firstName: getValue("firstName"),
+        email: getValue("email"),
+        phone: getValue("phone"),
+        phoneConfirm: getValue("phoneConfirm"),
+        yearsOfService: getValue("yearsOfService"),
+        retirementDate: getValue("retirementDate"),
+        socialInsurance: getValue("socialInsurance"),
+        employmentInsurance: getValue("employmentInsurance")
+      };
 
-      if (!selectedDate) return showError("日付を選択してください。");
-      if (!selectedTime) return showError("時間を選択してください。");
-      if (!lastName) return showError("姓を入力してください。");
-      if (!firstName) return showError("名を入力してください。");
-      if (!email) return showError("メールアドレスを入力してください。");
-      if (!phone) return showError("携帯番号を入力してください。");
-      if (!phoneConfirm) return showError("携帯番号(確認用)を入力してください。");
-      if (phone !== phoneConfirm) return showError("携帯番号と携帯番号(確認用)が一致していません。");
-      if (!yearsOfService) return showError("勤続年数を入力してください。");
-      if (!retirementDate) return showError("退職予定日を入力してください。");
-      if (!socialInsurance) return showError("社会保険の加入を選択してください。");
-      if (!employmentInsurance) return showError("雇用保険の加入を選択してください。");
+      if (!payload.selectedDate) return showError("日付を選択してください。");
+      if (!payload.selectedTime) return showError("時間を選択してください。");
+      if (!payload.lastName) return showError("姓を入力してください。");
+      if (!payload.firstName) return showError("名を入力してください。");
+      if (!payload.email) return showError("メールアドレスを入力してください。");
+      if (!payload.phone) return showError("携帯番号を入力してください。");
+      if (!payload.phoneConfirm) return showError("携帯番号(確認用)を入力してください。");
+      if (payload.phone !== payload.phoneConfirm) return showError("携帯番号と携帯番号(確認用)が一致していません。");
+      if (!payload.yearsOfService) return showError("勤続年数を入力してください。");
+      if (!payload.retirementDate) return showError("退職予定日を入力してください。");
+      if (!payload.socialInsurance) return showError("社会保険の加入を選択してください。");
+      if (!payload.employmentInsurance) return showError("雇用保険の加入を選択してください。");
 
-      showSuccess(
-        "入力チェックは完了しました。<br>" +
-        "選択中の日付: " + selectedDate + "<br>" +
-        "選択中の時間: " + selectedTime + "<br>" +
-        "次のステップで、この内容を実際に保存できるようにします。"
-      );
+      try {
+        const response = await fetch('/api/book', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          return showError(result.message || '仮保存に失敗しました。');
+        }
+
+        showSuccess(
+          "Vercel API への送信は成功しました。<br>" +
+          "選択中の日付: " + result.booking.selectedDate + "<br>" +
+          "選択中の時間: " + result.booking.selectedTime + "<br>" +
+          "氏名: " + result.booking.fullName + "<br>" +
+          "次のステップで、この内容を本当に保存できるようにします。"
+        );
+      } catch (error) {
+        showError("通信エラーが発生しました。");
+      }
     });
 
     renderDates();
