@@ -391,12 +391,14 @@
           return showError(result.message || '送信に失敗しました。');
         }
 
-        showSuccess(
-          "Vercel API への送信は成功しました。<br>" +
-          "選択中の日付: " + result.booking.selectedDate + "<br>" +
-          "選択中の時間: " + result.booking.selectedTime + "<br>" +
-          "氏名: " + result.booking.fullName + "<br>" +
-          "次のステップで、この内容を本当に保存できるようにします。"
+         showSuccess(
+          "予約は正常に作成されました。<br>" +
+          "予約日: " + result.bookingDate + "<br>" +
+          "開始時刻: " + result.bookingStartTime + "<br>" +
+          "終了時刻: " + result.bookingEndTime + "<br>" +
+          "お名前: " + result.fullName + "<br>" +
+          "予約ID: " + result.bookingId + "<br>" +
+          '管理URL: <a href="' + result.managementUrl + '" target="_blank">' + result.managementUrl + '</a>'
         );
       } catch (error) {
         showError("通信エラーが発生しました。");
