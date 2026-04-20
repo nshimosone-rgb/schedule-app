@@ -47,12 +47,22 @@ export default async function handler(req, res) {
       body: JSON.stringify(gasPayload)
     });
 
-    const gasResult = await gasResponse.json();
+    const rawText = await gasResponse.text();
 
-    if (!gasResult.success) {
+    let gasResult;
+    try {
+      gasResult = JSON.parse(rawText);
+    } catch (parseError) {
+      return res.status(500).json({
+        success: false,
+        message: `GASの返却がJSONではありません。HTTP ${gasResponse.status} / ${rawText.slice(0, 200)}`
+      });
+    }
+
+    if (!gasResponse.ok || !gasResult.success) {
       return res.status(400).json({
         success: false,
-        message: gasResult.message || 'GAS側で予約作成に失敗しました。'
+        message: gasResult.message || `GAS側エラー HTTP ${gasResponse.status}`
       });
     }
 
@@ -69,7 +79,7 @@ export default async function handler(req, res) {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: 'VercelからGASへの通信でエラーが発生しました。'
+      message: `VercelからGASへの通信でエラーが発生しました: ${error.message}`
     });
   }
 }
