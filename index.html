@@ -12,7 +12,7 @@
       color: #222;
     }
     .wrap {
-      max-width: 720px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 24px 16px;
     }
@@ -21,30 +21,89 @@
       border-radius: 16px;
       padding: 24px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      margin-bottom: 16px;
     }
     h1 {
-      margin-top: 0;
-      font-size: 28px;
+      margin: 0 0 12px;
+      font-size: 32px;
       line-height: 1.4;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
     }
     p {
       line-height: 1.8;
       color: #555;
+      margin: 0;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .chip {
+      border: 1px solid #d0d7de;
+      background: #fff;
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .chip:hover {
+      background: #f0f6ff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    .field input, .field select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #d0d7de;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      background: #fff;
+    }
+    .submit-row {
+      margin-top: 18px;
     }
     .btn {
       display: inline-block;
-      margin-top: 16px;
-      padding: 14px 20px;
+      border: none;
       border-radius: 10px;
       background: #1a73e8;
       color: #fff;
-      text-decoration: none;
+      padding: 14px 20px;
+      font-size: 15px;
       font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+    }
+    .notice {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #f0f4ff;
+      color: #334;
+      font-size: 14px;
+      line-height: 1.7;
     }
     .note {
-      margin-top: 16px;
+      margin-top: 12px;
       font-size: 13px;
       color: #777;
+      line-height: 1.7;
     }
   </style>
 </head>
@@ -52,13 +111,91 @@
   <div class="wrap">
     <div class="card">
       <h1>日程調整ページ</h1>
-      <p>
-        現在、日程調整ページを準備中です。<br>
-        次のステップで、日付選択・時間選択・情報入力までできる形にしていきます。
-      </p>
-      <a class="btn" href="#">準備中</a>
+      <p>ご希望の日付と時間を選択し、その後に必要情報をご入力ください。</p>
+      <div class="notice">
+        現在は画面の見た目まで実装済みです。<br>
+        次のステップで、実際に予約を保存できるようにします。
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>1. 日付を選択</h2>
+      <div class="chips">
+        <button class="chip" type="button">4/28(月)</button>
+        <button class="chip" type="button">4/29(火)</button>
+        <button class="chip" type="button">4/30(水)</button>
+        <button class="chip" type="button">5/1(木)</button>
+        <button class="chip" type="button">5/2(金)</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. 時間を選択</h2>
+      <div class="chips">
+        <button class="chip" type="button">09:00〜09:15</button>
+        <button class="chip" type="button">09:15〜09:30</button>
+        <button class="chip" type="button">09:30〜09:45</button>
+        <button class="chip" type="button">13:30〜13:45</button>
+        <button class="chip" type="button">13:45〜14:00</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3. 必要情報を入力</h2>
+      <div class="grid">
+        <div class="field">
+          <label>姓</label>
+          <input type="text" placeholder="例: 山田">
+        </div>
+        <div class="field">
+          <label>名</label>
+          <input type="text" placeholder="例: 太郎">
+        </div>
+        <div class="field">
+          <label>メールアドレス</label>
+          <input type="email" placeholder="example@example.com">
+        </div>
+        <div class="field">
+          <label>携帯番号</label>
+          <input type="tel" placeholder="09012345678">
+        </div>
+        <div class="field">
+          <label>携帯番号(確認用)</label>
+          <input type="tel" placeholder="09012345678">
+        </div>
+        <div class="field">
+          <label>勤続年数</label>
+          <input type="text" placeholder="例: 3年">
+        </div>
+        <div class="field">
+          <label>退職予定日</label>
+          <input type="date">
+        </div>
+        <div class="field">
+          <label>社会保険の加入</label>
+          <select>
+            <option>選択してください</option>
+            <option>あり</option>
+            <option>なし</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>雇用保険の加入</label>
+          <select>
+            <option>選択してください</option>
+            <option>あり</option>
+            <option>なし</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn" type="button">この内容で予約する</button>
+      </div>
+
       <div class="note">
-        このページが表示されれば、Vercel 側の公開は正常です。
+        ※ このボタンはまだ保存処理にはつながっていません。<br>
+        次のステップで、実際に予約データを保存できるようにします。
       </div>
     </div>
   </div>
