@@ -2,35 +2,37 @@ const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxRDywg23acgY-1G
 
 export default async function handler(req, res) {
   try {
-    const response = await fetch(`${GAS_WEBAPP_URL}?mode=slots`);
-    const rawText = await response.text();
+    const gasBaseUrl =
+      "https://script.google.com/macros/s/AKfycbxRDywg23acgY-1GIXNAujOH17U4lzm7CV5J6c0Ceq0RweBchG6xoOFCaLFlXTicX4VVA/exec";
 
-    let result;
+    const gasUrl = `${gasBaseUrl}?action=slots`;
+
+    const response = await fetch(gasUrl, {
+      method: "GET",
+      redirect: "follow",
+      headers: {
+        "Accept": "application/json"
+      }
+    });
+
+    const text = await response.text();
+
+    let json;
     try {
-      result = JSON.parse(rawText);
-    } catch (error) {
+      json = JSON.parse(text);
+    } catch (e) {
       return res.status(500).json({
         success: false,
-        message: `GAS slots の返却がJSONではありません。HTTP ${response.status} / ${rawText.slice(0, 200)}`
+        message: `GAS slots の返却がJSONではありません。HTTP ${response.status} / ${text.slice(0, 300)}`
       });
     }
 
-    if (!response.ok || !result.success) {
-      return res.status(400).json({
-        success: false,
-        message: result.message || `GAS slots 取得失敗 HTTP ${response.status}`
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      dates: result.dates || []
-    });
+    return res.status(response.ok ? 200 : 500).json(json);
 
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: `VercelからGAS slots取得でエラーが発生しました: ${error.message}`
+      message: error.message || "slots API error"
     });
   }
 }
