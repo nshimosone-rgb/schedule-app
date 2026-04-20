@@ -113,6 +113,11 @@
       font-size: 14px;
       line-height: 1.8;
     }
+    .empty {
+      margin-top: 12px;
+      color: #777;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -121,31 +126,20 @@
       <h1>日程調整ページ</h1>
       <p>ご希望の日付と時間を選択し、その後に必要情報をご入力ください。</p>
       <div class="notice">
-        現在は日付・時間の選択まで実装済みです。<br>
+        現在は日付ごとに時間候補が切り替わるところまで実装済みです。<br>
         次のステップで、実際に予約を保存できるようにします。
       </div>
     </div>
 
     <div class="card">
       <h2>1. 日付を選択</h2>
-      <div class="chips" id="dateChips">
-        <button class="chip" type="button">4/28(月)</button>
-        <button class="chip" type="button">4/29(火)</button>
-        <button class="chip" type="button">4/30(水)</button>
-        <button class="chip" type="button">5/1(木)</button>
-        <button class="chip" type="button">5/2(金)</button>
-      </div>
+      <div class="chips" id="dateChips"></div>
     </div>
 
     <div class="card">
       <h2>2. 時間を選択</h2>
-      <div class="chips" id="timeChips">
-        <button class="chip" type="button">09:00〜09:15</button>
-        <button class="chip" type="button">09:15〜09:30</button>
-        <button class="chip" type="button">09:30〜09:45</button>
-        <button class="chip" type="button">13:30〜13:45</button>
-        <button class="chip" type="button">13:45〜14:00</button>
-      </div>
+      <div class="chips" id="timeChips"></div>
+      <div class="empty" id="emptyTime" style="display:none;">この日の時間候補はありません。</div>
     </div>
 
     <div class="card">
@@ -209,30 +203,88 @@
   </div>
 
   <script>
-    function setupSelectableChips(containerId) {
-      const container = document.getElementById(containerId);
-      const buttons = container.querySelectorAll('.chip');
+    const scheduleData = {
+      "4/28(月)": ["09:00〜09:15", "09:15〜09:30"],
+      "4/29(火)": ["10:00〜10:15", "10:15〜10:30", "13:00〜13:15"],
+      "4/30(水)": ["09:30〜09:45", "13:30〜13:45"],
+      "5/1(木)": ["14:00〜14:15", "14:15〜14:30", "15:00〜15:15"],
+      "5/2(金)": ["11:00〜11:15"]
+    };
 
-      buttons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          buttons.forEach((b) => b.classList.remove('active'));
-          btn.classList.add('active');
+    let selectedDate = "";
+    let selectedTime = "";
+
+    function renderDates() {
+      const dateChips = document.getElementById("dateChips");
+      dateChips.innerHTML = "";
+
+      Object.keys(scheduleData).forEach((date) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip";
+        btn.textContent = date;
+
+        btn.addEventListener("click", () => {
+          selectedDate = date;
+          selectedTime = "";
+          updateActiveDate();
+          renderTimes();
           updateSummary();
         });
+
+        dateChips.appendChild(btn);
+      });
+    }
+
+    function updateActiveDate() {
+      document.querySelectorAll("#dateChips .chip").forEach((chip) => {
+        chip.classList.toggle("active", chip.textContent === selectedDate);
+      });
+    }
+
+    function renderTimes() {
+      const timeChips = document.getElementById("timeChips");
+      const emptyTime = document.getElementById("emptyTime");
+      timeChips.innerHTML = "";
+
+      const times = scheduleData[selectedDate] || [];
+
+      if (!times.length) {
+        emptyTime.style.display = "block";
+        return;
+      }
+
+      emptyTime.style.display = "none";
+
+      times.forEach((time) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip";
+        btn.textContent = time;
+
+        btn.addEventListener("click", () => {
+          selectedTime = time;
+          updateActiveTime();
+          updateSummary();
+        });
+
+        timeChips.appendChild(btn);
+      });
+    }
+
+    function updateActiveTime() {
+      document.querySelectorAll("#timeChips .chip").forEach((chip) => {
+        chip.classList.toggle("active", chip.textContent === selectedTime);
       });
     }
 
     function updateSummary() {
-      const selectedDate = document.querySelector('#dateChips .chip.active');
-      const selectedTime = document.querySelector('#timeChips .chip.active');
-
-      document.getElementById('summaryBox').innerHTML =
-        '選択中の日付: ' + (selectedDate ? selectedDate.textContent : '未選択') + '<br>' +
-        '選択中の時間: ' + (selectedTime ? selectedTime.textContent : '未選択');
+      document.getElementById("summaryBox").innerHTML =
+        "選択中の日付: " + (selectedDate || "未選択") + "<br>" +
+        "選択中の時間: " + (selectedTime || "未選択");
     }
 
-    setupSelectableChips('dateChips');
-    setupSelectableChips('timeChips');
+    renderDates();
   </script>
 </body>
 </html>
