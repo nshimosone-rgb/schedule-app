@@ -1,4 +1,4 @@
-const GAS_WEBAPP_URL = 'ここに最新のGASの/exec URLを貼る';
+const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxRDywg23acgY-1GIXNAujOH17U4lzm7CV5J6c0Ceq0RweBchG6xoOFCaLFlXTicX4VVA/exec';
 
 const DATE_MAP = {
   '4/28(月)': '2026/04/28',
