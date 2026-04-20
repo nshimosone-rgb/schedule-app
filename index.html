@@ -50,9 +50,15 @@
       padding: 12px 16px;
       font-size: 14px;
       cursor: pointer;
+      transition: .15s ease;
     }
     .chip:hover {
       background: #f0f6ff;
+    }
+    .chip.active {
+      background: #1a73e8;
+      color: #fff;
+      border-color: #1a73e8;
     }
     .grid {
       display: grid;
@@ -99,11 +105,13 @@
       font-size: 14px;
       line-height: 1.7;
     }
-    .note {
-      margin-top: 12px;
-      font-size: 13px;
-      color: #777;
-      line-height: 1.7;
+    .summary {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #eef7ee;
+      font-size: 14px;
+      line-height: 1.8;
     }
   </style>
 </head>
@@ -113,14 +121,14 @@
       <h1>日程調整ページ</h1>
       <p>ご希望の日付と時間を選択し、その後に必要情報をご入力ください。</p>
       <div class="notice">
-        現在は画面の見た目まで実装済みです。<br>
+        現在は日付・時間の選択まで実装済みです。<br>
         次のステップで、実際に予約を保存できるようにします。
       </div>
     </div>
 
     <div class="card">
       <h2>1. 日付を選択</h2>
-      <div class="chips">
+      <div class="chips" id="dateChips">
         <button class="chip" type="button">4/28(月)</button>
         <button class="chip" type="button">4/29(火)</button>
         <button class="chip" type="button">4/30(水)</button>
@@ -131,7 +139,7 @@
 
     <div class="card">
       <h2>2. 時間を選択</h2>
-      <div class="chips">
+      <div class="chips" id="timeChips">
         <button class="chip" type="button">09:00〜09:15</button>
         <button class="chip" type="button">09:15〜09:30</button>
         <button class="chip" type="button">09:30〜09:45</button>
@@ -189,15 +197,42 @@
         </div>
       </div>
 
+      <div class="summary" id="summaryBox">
+        選択中の日付: 未選択<br>
+        選択中の時間: 未選択
+      </div>
+
       <div class="submit-row">
         <button class="btn" type="button">この内容で予約する</button>
       </div>
-
-      <div class="note">
-        ※ このボタンはまだ保存処理にはつながっていません。<br>
-        次のステップで、実際に予約データを保存できるようにします。
-      </div>
     </div>
   </div>
+
+  <script>
+    function setupSelectableChips(containerId) {
+      const container = document.getElementById(containerId);
+      const buttons = container.querySelectorAll('.chip');
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          buttons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          updateSummary();
+        });
+      });
+    }
+
+    function updateSummary() {
+      const selectedDate = document.querySelector('#dateChips .chip.active');
+      const selectedTime = document.querySelector('#timeChips .chip.active');
+
+      document.getElementById('summaryBox').innerHTML =
+        '選択中の日付: ' + (selectedDate ? selectedDate.textContent : '未選択') + '<br>' +
+        '選択中の時間: ' + (selectedTime ? selectedTime.textContent : '未選択');
+    }
+
+    setupSelectableChips('dateChips');
+    setupSelectableChips('timeChips');
+  </script>
 </body>
 </html>
