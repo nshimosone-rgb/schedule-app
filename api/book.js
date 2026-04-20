@@ -1,5 +1,18 @@
 const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxRDywg23acgY-1GIXNAujOH17U4lzm7CV5J6c0Ceq0RweBchG6xoOFCaLFlXTicX4VVA/exec';
 
+const DATE_MAP = {
+  '4/28(月)': '2026/04/28',
+  '4/29(火)': '2026/04/29',
+  '4/30(水)': '2026/04/30',
+  '5/1(木)': '2026/05/01',
+  '5/2(金)': '2026/05/02'
+};
+
+function normalizeTimeRangeToStart(timeRange) {
+  if (!timeRange) return '';
+  return String(timeRange).split('〜')[0].trim();
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({
@@ -11,12 +24,29 @@ export default async function handler(req, res) {
   try {
     const payload = req.body || {};
 
+    const bookingDate = DATE_MAP[payload.selectedDate] || '';
+    const bookingStartTime = normalizeTimeRangeToStart(payload.selectedTime);
+
+    const gasPayload = {
+      lastName: payload.lastName,
+      firstName: payload.firstName,
+      email: payload.email,
+      phone: payload.phone,
+      phoneConfirm: payload.phoneConfirm,
+      yearsOfService: payload.yearsOfService,
+      retirementDate: payload.retirementDate,
+      socialInsurance: payload.socialInsurance,
+      employmentInsurance: payload.employmentInsurance,
+      bookingDate,
+      bookingStartTime
+    };
+
     const gasResponse = await fetch(GAS_WEBAPP_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(gasPayload)
     });
 
     const gasResult = await gasResponse.json();
