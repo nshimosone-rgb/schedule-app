@@ -1,16 +1,5 @@
 const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxRDywg23acgY-1GIXNAujOH17U4lzm7CV5J6c0Ceq0RweBchG6xoOFCaLFlXTicX4VVA/exec';
 
-const DATE_MAP = {
-  '4/21(火)': '2026/04/21',
-  '4/23(木)': '2026/04/23',
-  '4/24(金)': '2026/04/24'
-};
-
-function normalizeTimeRangeToStart(timeRange) {
-  if (!timeRange) return '';
-  return String(timeRange).split('〜')[0].trim();
-}
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({
@@ -22,9 +11,6 @@ export default async function handler(req, res) {
   try {
     const payload = req.body || {};
 
-    const bookingDate = DATE_MAP[payload.selectedDate] || '';
-    const bookingStartTime = normalizeTimeRangeToStart(payload.selectedTime);
-
     const gasPayload = {
       lastName: payload.lastName,
       firstName: payload.firstName,
@@ -35,8 +21,8 @@ export default async function handler(req, res) {
       retirementDate: payload.retirementDate,
       socialInsurance: payload.socialInsurance,
       employmentInsurance: payload.employmentInsurance,
-      bookingDate,
-      bookingStartTime
+      bookingDate: payload.bookingDate,
+      bookingStartTime: payload.bookingStartTime
     };
 
     const gasResponse = await fetch(GAS_WEBAPP_URL, {
@@ -52,7 +38,7 @@ export default async function handler(req, res) {
     let gasResult;
     try {
       gasResult = JSON.parse(rawText);
-    } catch (parseError) {
+    } catch (error) {
       return res.status(500).json({
         success: false,
         message: `GASの返却がJSONではありません。HTTP ${gasResponse.status} / ${rawText.slice(0, 200)}`
