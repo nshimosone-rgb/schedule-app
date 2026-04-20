@@ -1,71 +1,45 @@
 const GAS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbxRDywg23acgY-1GIXNAujOH17U4lzm7CV5J6c0Ceq0RweBchG6xoOFCaLFlXTicX4VVA/exec';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({
-      success: false,
-      message: 'Method Not Allowed'
-    });
-  }
-
   try {
-    const payload = req.body || {};
+    if (req.method !== "POST") {
+      return res.status(405).json({
+        success: false,
+        message: "Method Not Allowed"
+      });
+    }
 
-    const gasPayload = {
-      lastName: payload.lastName,
-      firstName: payload.firstName,
-      email: payload.email,
-      phone: payload.phone,
-      phoneConfirm: payload.phoneConfirm,
-      yearsOfService: payload.yearsOfService,
-      retirementDate: payload.retirementDate,
-      socialInsurance: payload.socialInsurance,
-      employmentInsurance: payload.employmentInsurance,
-      bookingDate: payload.bookingDate,
-      bookingStartTime: payload.bookingStartTime
-    };
+    const gasUrl =
+      "https://script.google.com/macros/s/AKfycbxRDywg23acgY-1GIXNAujOH17U4lzm7CV5J6c0Ceq0RweBchG6xoOFCaLFlXTicX4VVA/exec";
 
-    const gasResponse = await fetch(GAS_WEBAPP_URL, {
-      method: 'POST',
+    const response = await fetch(gasUrl, {
+      method: "POST",
+      redirect: "follow",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
+        "Accept": "application/json"
       },
-      body: JSON.stringify(gasPayload)
+      body: JSON.stringify(req.body)
     });
 
-    const rawText = await gasResponse.text();
+    const text = await response.text();
 
-    let gasResult;
+    let json;
     try {
-      gasResult = JSON.parse(rawText);
-    } catch (error) {
+      json = JSON.parse(text);
+    } catch (e) {
       return res.status(500).json({
         success: false,
-        message: `GASの返却がJSONではありません。HTTP ${gasResponse.status} / ${rawText.slice(0, 200)}`
+        message: `GAS book の返却がJSONではありません。HTTP ${response.status} / ${text.slice(0, 300)}`
       });
     }
 
-    if (!gasResponse.ok || !gasResult.success) {
-      return res.status(400).json({
-        success: false,
-        message: gasResult.message || `GAS側エラー HTTP ${gasResponse.status}`
-      });
-    }
-
-    return res.status(200).json({
-      success: true,
-      bookingId: gasResult.bookingId,
-      fullName: gasResult.fullName,
-      bookingDate: gasResult.bookingDate,
-      bookingStartTime: gasResult.bookingStartTime,
-      bookingEndTime: gasResult.bookingEndTime,
-      managementUrl: gasResult.managementUrl
-    });
+    return res.status(response.ok ? 200 : 500).json(json);
 
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: `VercelからGASへの通信でエラーが発生しました: ${error.message}`
+      message: error.message || "book API error"
     });
   }
 }
