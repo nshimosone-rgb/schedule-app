@@ -184,6 +184,14 @@
           <input id="firstName" type="text" placeholder="例: 太郎">
         </div>
         <div class="field">
+          <label>セイ</label>
+          <input id="lastNameKana" type="text" placeholder="例: ヤマダ">
+        </div>
+        <div class="field">
+          <label>メイ</label>
+          <input id="firstNameKana" type="text" placeholder="例: タロウ">
+        </div>
+        <div class="field">
           <label>メールアドレス</label>
           <input id="email" type="email" placeholder="example@example.com">
         </div>
@@ -235,231 +243,227 @@
     </div>
   </div>
 
-<script>
-  let scheduleData = [];
-  let selectedDateValue = "";
-  let selectedDateLabel = "";
-  let selectedTimeStart = "";
-  let selectedTimeEnd = "";
-  let selectedTimeLabel = "";
+  <script>
+    let scheduleData = [];
+    let selectedDateValue = "";
+    let selectedDateLabel = "";
+    let selectedTimeStart = "";
+    let selectedTimeEnd = "";
+    let selectedTimeLabel = "";
 
-  function normalizePhone(value) {
-    return String(value || "").replace(/\D/g, "");
-  }
+    function normalizePhone(value) {
+      return String(value || "").replace(/\D/g, "");
+    }
 
-  function isValidMobilePhone(value) {
-    return /^0\d{10}$/.test(normalizePhone(value));
-  }
+    function isValidMobilePhone(value) {
+      return /^0\d{10}$/.test(normalizePhone(value));
+    }
 
-  async function loadSlots() {
-    try {
-      const response = await fetch('/api/slots');
-      const result = await response.json();
+    async function loadSlots() {
+      try {
+        const response = await fetch('/api/slots');
+        const result = await response.json();
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || '空き枠取得に失敗しました。');
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || '空き枠取得に失敗しました。');
+        }
+
+        scheduleData = result.dates || [];
+        renderDates();
+        document.getElementById('loadingSlots').style.display = 'none';
+
+        if (!scheduleData.length) {
+          document.getElementById('emptyDate').style.display = 'block';
+        }
+
+      } catch (error) {
+        document.getElementById('loadingSlots').style.display = 'none';
+        showError(error.message || '空き枠取得エラー');
+      }
+    }
+
+    function renderDates() {
+      const dateChips = document.getElementById("dateChips");
+      dateChips.innerHTML = "";
+
+      scheduleData.forEach((dateObj) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip";
+        btn.textContent = dateObj.label;
+
+        btn.addEventListener("click", () => {
+          selectedDateValue = dateObj.value;
+          selectedDateLabel = dateObj.label;
+          selectedTimeStart = "";
+          selectedTimeEnd = "";
+          selectedTimeLabel = "";
+          updateActiveDate();
+          renderTimes(dateObj.times || []);
+          updateSummary();
+          clearMessages();
+        });
+
+        dateChips.appendChild(btn);
+      });
+    }
+
+    function updateActiveDate() {
+      document.querySelectorAll("#dateChips .chip").forEach((chip) => {
+        chip.classList.toggle("active", chip.textContent === selectedDateLabel);
+      });
+    }
+
+    function renderTimes(times) {
+      const timeChips = document.getElementById("timeChips");
+      const emptyTime = document.getElementById("emptyTime");
+      timeChips.innerHTML = "";
+
+      if (!times.length) {
+        emptyTime.style.display = "block";
+        return;
       }
 
-      scheduleData = result.dates || [];
-      renderDates();
-      document.getElementById('loadingSlots').style.display = 'none';
+      emptyTime.style.display = "none";
 
-      if (!scheduleData.length) {
-        document.getElementById('emptyDate').style.display = 'block';
+      times.forEach((timeObj) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip";
+        btn.textContent = timeObj.label;
+
+        btn.addEventListener("click", () => {
+          selectedTimeStart = timeObj.start;
+          selectedTimeEnd = timeObj.end;
+          selectedTimeLabel = timeObj.label;
+          updateActiveTime();
+          updateSummary();
+          clearMessages();
+        });
+
+        timeChips.appendChild(btn);
+      });
+    }
+
+    function updateActiveTime() {
+      document.querySelectorAll("#timeChips .chip").forEach((chip) => {
+        chip.classList.toggle("active", chip.textContent === selectedTimeLabel);
+      });
+    }
+
+    function updateSummary() {
+      document.getElementById("summaryBox").innerHTML =
+        "選択中の日付: " + (selectedDateLabel || "未選択") + "<br>" +
+        "選択中の時間: " + (selectedTimeLabel || "未選択");
+    }
+
+    function clearMessages() {
+      document.getElementById("errorBox").style.display = "none";
+      document.getElementById("successBox").style.display = "none";
+      document.getElementById("errorBox").textContent = "";
+      document.getElementById("successBox").textContent = "";
+    }
+
+    function showError(message) {
+      const box = document.getElementById("errorBox");
+      box.textContent = message;
+      box.style.display = "block";
+      document.getElementById("successBox").style.display = "none";
+    }
+
+    function showSuccess(message) {
+      const box = document.getElementById("successBox");
+      box.innerHTML = message;
+      box.style.display = "block";
+      document.getElementById("errorBox").style.display = "none";
+    }
+
+    function getValue(id) {
+      return document.getElementById(id).value.trim();
+    }
+
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      clearMessages();
+
+      const payload = {
+        bookingDate: selectedDateValue,
+        bookingStartTime: selectedTimeStart,
+        lastName: getValue("lastName"),
+        firstName: getValue("firstName"),
+        lastNameKana: getValue("lastNameKana"),
+        firstNameKana: getValue("firstNameKana"),
+        email: getValue("email"),
+        phone: getValue("phone"),
+        phoneConfirm: getValue("phoneConfirm"),
+        yearsOfService: getValue("yearsOfService"),
+        retirementDate: getValue("retirementDate"),
+        socialInsurance: getValue("socialInsurance"),
+        employmentInsurance: getValue("employmentInsurance")
+      };
+
+      if (!payload.bookingDate) return showError("日付を選択してください。");
+      if (!payload.bookingStartTime) return showError("時間を選択してください。");
+      if (!payload.lastName) return showError("姓を入力してください。");
+      if (!payload.firstName) return showError("名を入力してください。");
+      if (!payload.lastNameKana) return showError("セイを入力してください。");
+      if (!payload.firstNameKana) return showError("メイを入力してください。");
+      if (!payload.email) return showError("メールアドレスを入力してください。");
+      if (!payload.phone) return showError("携帯番号を入力してください。");
+      if (!payload.phoneConfirm) return showError("携帯番号(確認用)を入力してください。");
+
+      const normalizedPhone = normalizePhone(payload.phone);
+      const normalizedPhoneConfirm = normalizePhone(payload.phoneConfirm);
+
+      if (!isValidMobilePhone(normalizedPhone)) {
+        return showError("携帯番号は11桁の携帯番号を入力してください。");
       }
 
-    } catch (error) {
-      document.getElementById('loadingSlots').style.display = 'none';
-      showError(error.message || '空き枠取得エラー');
-    }
-  }
-
-  function renderDates() {
-    const dateChips = document.getElementById("dateChips");
-    dateChips.innerHTML = "";
-
-    scheduleData.forEach((dateObj) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "chip";
-      btn.textContent = dateObj.label;
-
-      btn.addEventListener("click", () => {
-        selectedDateValue = dateObj.value;
-        selectedDateLabel = dateObj.label;
-        selectedTimeStart = "";
-        selectedTimeEnd = "";
-        selectedTimeLabel = "";
-        updateActiveDate();
-        renderTimes(dateObj.times || []);
-        updateSummary();
-        clearMessages();
-      });
-
-      dateChips.appendChild(btn);
-    });
-  }
-
-  function updateActiveDate() {
-    document.querySelectorAll("#dateChips .chip").forEach((chip) => {
-      chip.classList.toggle("active", chip.textContent === selectedDateLabel);
-    });
-  }
-
-  function renderTimes(times) {
-    const timeChips = document.getElementById("timeChips");
-    const emptyTime = document.getElementById("emptyTime");
-    timeChips.innerHTML = "";
-
-    if (!times.length) {
-      emptyTime.style.display = "block";
-      return;
-    }
-
-    emptyTime.style.display = "none";
-
-    times.forEach((timeObj) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "chip";
-      btn.textContent = timeObj.label;
-
-      btn.addEventListener("click", () => {
-        selectedTimeStart = timeObj.start;
-        selectedTimeEnd = timeObj.end;
-        selectedTimeLabel = timeObj.label;
-        updateActiveTime();
-        updateSummary();
-        clearMessages();
-      });
-
-      timeChips.appendChild(btn);
-    });
-  }
-
-  function updateActiveTime() {
-    document.querySelectorAll("#timeChips .chip").forEach((chip) => {
-      chip.classList.toggle("active", chip.textContent === selectedTimeLabel);
-    });
-  }
-
-  function updateSummary() {
-    document.getElementById("summaryBox").innerHTML =
-      "選択中の日付: " + (selectedDateLabel || "未選択") + "<br>" +
-      "選択中の時間: " + (selectedTimeLabel || "未選択");
-  }
-
-  function clearMessages() {
-    document.getElementById("errorBox").style.display = "none";
-    document.getElementById("successBox").style.display = "none";
-    document.getElementById("errorBox").textContent = "";
-    document.getElementById("successBox").textContent = "";
-  }
-
-  function showError(message) {
-    const box = document.getElementById("errorBox");
-    box.textContent = message;
-    box.style.display = "block";
-    document.getElementById("successBox").style.display = "none";
-  }
-
-  function showSuccess(message) {
-    const box = document.getElementById("successBox");
-    box.innerHTML = message;
-    box.style.display = "block";
-    document.getElementById("errorBox").style.display = "none";
-  }
-
-  function getValue(id) {
-    return document.getElementById(id).value.trim();
-  }
-
-  function normalizePhone(value) {
-  return String(value || "").replace(/\D/g, "");
-}
-
-function isValidMobilePhone(value) {
-  return /^0\d{10}$/.test(normalizePhone(value));
-}
-
-  document.getElementById("submitBtn").addEventListener("click", async () => {
-    clearMessages();
-
-    const payload = {
-      bookingDate: selectedDateValue,
-      bookingStartTime: selectedTimeStart,
-      lastName: getValue("lastName"),
-      firstName: getValue("firstName"),
-      email: getValue("email"),
-      phone: getValue("phone"),
-      phoneConfirm: getValue("phoneConfirm"),
-      yearsOfService: getValue("yearsOfService"),
-      retirementDate: getValue("retirementDate"),
-      socialInsurance: getValue("socialInsurance"),
-      employmentInsurance: getValue("employmentInsurance")
-    };
-
-    if (!payload.bookingDate) return showError("日付を選択してください。");
-    if (!payload.bookingStartTime) return showError("時間を選択してください。");
-    if (!payload.lastName) return showError("姓を入力してください。");
-    if (!payload.firstName) return showError("名を入力してください。");
-    if (!payload.email) return showError("メールアドレスを入力してください。");
-    if (!payload.phone) return showError("携帯番号を入力してください。");
-    if (!payload.phoneConfirm) return showError("携帯番号(確認用)を入力してください。");
-
-    const normalizedPhone = normalizePhone(payload.phone);
-    const normalizedPhoneConfirm = normalizePhone(payload.phoneConfirm);
-
-    if (!isValidMobilePhone(normalizedPhone)) {
-      return showError("携帯番号は11桁の携帯番号を入力してください。");
-    }
-
-    if (!isValidMobilePhone(normalizedPhoneConfirm)) {
-      return showError("携帯番号(確認用)は11桁の携帯番号を入力してください。");
-    }
-
-    if (normalizedPhone !== normalizedPhoneConfirm) {
-      return showError("携帯番号と携帯番号(確認用)が一致していません。");
-    }
-
-    payload.phone = normalizedPhone;
-    payload.phoneConfirm = normalizedPhoneConfirm;
-
-    if (!payload.yearsOfService) return showError("勤続年数を入力してください。");
-    if (!payload.retirementDate) return showError("退職予定日を入力してください。");
-    if (!payload.socialInsurance) return showError("社会保険の加入を選択してください。");
-    if (!payload.employmentInsurance) return showError("雇用保険の加入を選択してください。");
-
-    try {
-      const response = await fetch('/api/book', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || !result.success) {
-        return showError(result.message || '送信に失敗しました。');
+      if (!isValidMobilePhone(normalizedPhoneConfirm)) {
+        return showError("携帯番号(確認用)は11桁の携帯番号を入力してください。");
       }
 
-      showSuccess(
-        "予約は正常に作成されました。<br>" +
-        "予約日: " + result.bookingDate + "<br>" +
-        "開始時刻: " + result.bookingStartTime + "<br>" +
-        "終了時刻: " + result.bookingEndTime + "<br>" +
-        "お名前: " + result.fullName + "<br>" +
-        "予約ID: " + result.bookingId + "<br>" +
-        '管理URL: <a href="' + result.managementUrl + '" target="_blank">' + result.managementUrl + '</a>'
-      );
-    } catch (error) {
-      showError("通信エラーが発生しました。");
-    }
-  });
+      if (normalizedPhone !== normalizedPhoneConfirm) {
+        return showError("携帯番号と携帯番号(確認用)が一致していません。");
+      }
 
-  loadSlots();
-</script>
+      payload.phone = normalizedPhone;
+      payload.phoneConfirm = normalizedPhoneConfirm;
+
+      if (!payload.yearsOfService) return showError("勤続年数を入力してください。");
+      if (!payload.retirementDate) return showError("退職予定日を入力してください。");
+      if (!payload.socialInsurance) return showError("社会保険の加入を選択してください。");
+      if (!payload.employmentInsurance) return showError("雇用保険の加入を選択してください。");
+
+      try {
+        const response = await fetch('/api/book', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          return showError(result.message || '送信に失敗しました。');
+        }
+
+        showSuccess(
+          "予約は正常に作成されました。<br>" +
+          "予約日: " + result.bookingDate + "<br>" +
+          "開始時刻: " + result.bookingStartTime + "<br>" +
+          "終了時刻: " + result.bookingEndTime + "<br>" +
+          "お名前: " + result.fullName + "<br>" +
+          "予約ID: " + result.bookingId + "<br>" +
+          '管理URL: <a href="' + result.managementUrl + '" target="_blank">' + result.managementUrl + '</a>'
+        );
+      } catch (error) {
+        showError("通信エラーが発生しました。");
+      }
+    });
+
+    loadSlots();
+  </script>
 </body>
 </html>
