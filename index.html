@@ -20,7 +20,7 @@
       background: #fff;
       border-radius: 16px;
       padding: 24px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
       margin-bottom: 16px;
     }
     h1 {
@@ -102,15 +102,6 @@
       cursor: pointer;
       width: 100%;
     }
-    .notice {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      background: #f0f4ff;
-      color: #334;
-      font-size: 14px;
-      line-height: 1.7;
-    }
     .summary {
       margin-top: 16px;
       padding: 14px 16px;
@@ -179,6 +170,7 @@
 
     <div class="card">
       <h2>3. 必要情報を入力</h2>
+
       <div class="grid">
         <div class="field">
           <label>姓</label>
@@ -189,42 +181,42 @@
           <input id="firstName" type="text" placeholder="例: 太郎">
         </div>
 
-      <div class="field">
-  　　　<label>セイ</label>
- 　　　 <input id="lastNameKana" type="text" placeholder="例: ヤマダ">
-　　　　</div>
-　　　<div class="field">
- 　　　 <label>メイ</label>
-  　　　<input id="firstNameKana" type="text" placeholder="例: タロウ">
-　　　</div>
+        <div class="field">
+          <label>セイ</label>
+          <input id="lastNameKana" type="text" placeholder="例: ヤマダ">
+        </div>
+        <div class="field">
+          <label>メイ</label>
+          <input id="firstNameKana" type="text" placeholder="例: タロウ">
+        </div>
 
-　　　<div class="field">
- 　　　 <label>年齢</label>
- 　　　 <input id="age" type="text" placeholder="例: 35">
-　　　</div>
+        <div class="field">
+          <label>年齢</label>
+          <input id="age" type="text" placeholder="例: 35">
+        </div>
+        <div class="field">
+          <label>メールアドレス</label>
+          <input id="email" type="email" placeholder="example@example.com">
+        </div>
 
-　　　<div class="field">
-　　　  <label>メールアドレス</label>
-　　　  <input id="email" type="email" placeholder="example@example.com">
-　　　</div>
         <div class="field">
           <label>携帯番号</label>
           <input id="phone" type="tel" placeholder="09012345678">
         </div>
-
         <div class="field">
           <label>携帯番号(確認用)</label>
           <input id="phoneConfirm" type="tel" placeholder="09012345678">
         </div>
+
         <div class="field">
           <label>勤続年数</label>
           <input id="yearsOfService" type="text" placeholder="例: 3年">
         </div>
-
         <div class="field">
           <label>退職予定日</label>
           <input id="retirementDate" type="date">
         </div>
+
         <div class="field">
           <label>社会保険の加入</label>
           <select id="socialInsurance">
@@ -233,7 +225,6 @@
             <option value="なし">なし</option>
           </select>
         </div>
-
         <div class="field">
           <label>雇用保険の加入</label>
           <select id="employmentInsurance">
@@ -290,7 +281,6 @@
         if (!scheduleData.length) {
           document.getElementById('emptyDate').style.display = 'block';
         }
-
       } catch (error) {
         document.getElementById('loadingSlots').style.display = 'none';
         showError(error.message || '空き枠取得エラー');
@@ -401,21 +391,21 @@
       clearMessages();
 
       const payload = {
-  bookingDate: selectedDateValue,
-  bookingStartTime: selectedTimeStart,
-  lastName: getValue("lastName"),
-  firstName: getValue("firstName"),
-  lastNameKana: getValue("lastNameKana"),
-  firstNameKana: getValue("firstNameKana"),
-  age: getValue("age"),
-  email: getValue("email"),
-  phone: getValue("phone"),
-  phoneConfirm: getValue("phoneConfirm"),
-  yearsOfService: getValue("yearsOfService"),
-  retirementDate: getValue("retirementDate"),
-  socialInsurance: getValue("socialInsurance"),
-  employmentInsurance: getValue("employmentInsurance")
-};
+        bookingDate: selectedDateValue,
+        bookingStartTime: selectedTimeStart,
+        lastName: getValue("lastName"),
+        firstName: getValue("firstName"),
+        lastNameKana: getValue("lastNameKana"),
+        firstNameKana: getValue("firstNameKana"),
+        age: getValue("age"),
+        email: getValue("email"),
+        phone: getValue("phone"),
+        phoneConfirm: getValue("phoneConfirm"),
+        yearsOfService: getValue("yearsOfService"),
+        retirementDate: getValue("retirementDate"),
+        socialInsurance: getValue("socialInsurance"),
+        employmentInsurance: getValue("employmentInsurance")
+      };
 
       if (!payload.bookingDate) return showError("日付を選択してください。");
       if (!payload.bookingStartTime) return showError("時間を選択してください。");
@@ -423,6 +413,7 @@
       if (!payload.firstName) return showError("名を入力してください。");
       if (!payload.lastNameKana) return showError("セイを入力してください。");
       if (!payload.firstNameKana) return showError("メイを入力してください。");
+      if (!payload.age) return showError("年齢を入力してください。");
       if (!payload.email) return showError("メールアドレスを入力してください。");
       if (!payload.phone) return showError("携帯番号を入力してください。");
       if (!payload.phoneConfirm) return showError("携帯番号(確認用)を入力してください。");
