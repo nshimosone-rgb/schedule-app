@@ -374,6 +374,14 @@
     return document.getElementById(id).value.trim();
   }
 
+  function normalizePhone(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
+function isValidMobilePhone(value) {
+  return /^0\d{10}$/.test(normalizePhone(value));
+}
+
   document.getElementById("submitBtn").addEventListener("click", async () => {
     clearMessages();
 
