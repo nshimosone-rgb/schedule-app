@@ -401,20 +401,21 @@
       clearMessages();
 
       const payload = {
-        bookingDate: selectedDateValue,
-        bookingStartTime: selectedTimeStart,
-        lastName: getValue("lastName"),
-        firstName: getValue("firstName"),
-        lastNameKana: getValue("lastNameKana"),
-        firstNameKana: getValue("firstNameKana"),
-        email: getValue("email"),
-        phone: getValue("phone"),
-        phoneConfirm: getValue("phoneConfirm"),
-        yearsOfService: getValue("yearsOfService"),
-        retirementDate: getValue("retirementDate"),
-        socialInsurance: getValue("socialInsurance"),
-        employmentInsurance: getValue("employmentInsurance")
-      };
+  bookingDate: selectedDateValue,
+  bookingStartTime: selectedTimeStart,
+  lastName: getValue("lastName"),
+  firstName: getValue("firstName"),
+  lastNameKana: getValue("lastNameKana"),
+  firstNameKana: getValue("firstNameKana"),
+  age: getValue("age"),
+  email: getValue("email"),
+  phone: getValue("phone"),
+  phoneConfirm: getValue("phoneConfirm"),
+  yearsOfService: getValue("yearsOfService"),
+  retirementDate: getValue("retirementDate"),
+  socialInsurance: getValue("socialInsurance"),
+  employmentInsurance: getValue("employmentInsurance")
+};
 
       if (!payload.bookingDate) return showError("日付を選択してください。");
       if (!payload.bookingStartTime) return showError("時間を選択してください。");
