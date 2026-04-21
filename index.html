@@ -62,9 +62,14 @@
     }
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
       margin-top: 14px;
+    }
+    @media (max-width: 640px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
     }
     .field label {
       display: block;
@@ -183,6 +188,7 @@
           <label>名</label>
           <input id="firstName" type="text" placeholder="例: 太郎">
         </div>
+
         <div class="field">
           <label>セイ</label>
           <input id="lastNameKana" type="text" placeholder="例: ヤマダ">
@@ -191,6 +197,7 @@
           <label>メイ</label>
           <input id="firstNameKana" type="text" placeholder="例: タロウ">
         </div>
+
         <div class="field">
           <label>メールアドレス</label>
           <input id="email" type="email" placeholder="example@example.com">
@@ -199,6 +206,7 @@
           <label>携帯番号</label>
           <input id="phone" type="tel" placeholder="09012345678">
         </div>
+
         <div class="field">
           <label>携帯番号(確認用)</label>
           <input id="phoneConfirm" type="tel" placeholder="09012345678">
@@ -207,6 +215,7 @@
           <label>勤続年数</label>
           <input id="yearsOfService" type="text" placeholder="例: 3年">
         </div>
+
         <div class="field">
           <label>退職予定日</label>
           <input id="retirementDate" type="date">
@@ -219,6 +228,7 @@
             <option value="なし">なし</option>
           </select>
         </div>
+
         <div class="field">
           <label>雇用保険の加入</label>
           <select id="employmentInsurance">
